@@ -150,13 +150,14 @@ public class chris_load_balance_test {
             int overBookingFactor = 80;
             broker = createBroker(overBookingFactor);
             int brokerId = broker.getId();
+            Log.set_log_level(3);
             /**
              * 9- Creating the cloudlet, container and VM lists for submitting to the broker.
              */
             //cloudletList = createContainerCloudletList(brokerId, ConstantsExamples.NUMBER_CLOUDLETS);
             BaseRequestDistribution self_design_distribution = new BaseRequestDistribution(101, 10,
                     3,
-                    1000, 100);
+                    20000, 100);
             cloudletList = self_design_distribution.GetWorkloads();
             for(ContainerCloudlet cl : cloudletList){
                 cl.setUserId(brokerId);
@@ -172,8 +173,8 @@ public class chris_load_balance_test {
 
             for(int i = 0; i < hostList.size(); i++) {
                 //unused
-                PowerContainerDatacenterCM tmp = (PowerContainerDatacenterCM) createDatacenter("DatacenterCM",
-                        PowerContainerDatacenterCM.class, hostList.subList(i, i + 1), vmAllocationPolicy, containerAllocationPolicy,
+                PowerContainerDatacenterElasticity tmp = (PowerContainerDatacenterElasticity) createDatacenter("DatacenterElasticity",
+                        PowerContainerDatacenterElasticity.class, hostList.subList(i, i + 1), vmAllocationPolicy, containerAllocationPolicy,
                         getExperimentName("CHRIS_LOAD_BALANCE_TEST", String.valueOf(overBookingFactor)),
                         ConstantsExamples.SCHEDULING_INTERVAL, logAddress,
                         ConstantsExamples.VM_STARTTUP_DELAY, ConstantsExamples.CONTAINER_STARTTUP_DELAY);
@@ -380,7 +381,7 @@ public class chris_load_balance_test {
         ContainerDatacenterCharacteristics characteristics = new
                 ContainerDatacenterCharacteristics(arch, os, vmm, hostList, time_zone, cost, costPerMem, costPerStorage,
                 costPerBw);
-        ContainerDatacenter datacenter = new PowerContainerDatacenterCM(name, characteristics, vmAllocationPolicy,
+        ContainerDatacenter datacenter = new PowerContainerDatacenterElasticity(name, characteristics, vmAllocationPolicy,
                 containerAllocationPolicy, new LinkedList<Storage>(), schedulingInterval, experimentName, logAddress,
                 VMStartupDelay, ContainerStartupDelay);
 

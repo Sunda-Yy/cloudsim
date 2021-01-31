@@ -65,6 +65,9 @@ public class ContainerScalabilityBroker extends ContainerDatacenterBroker{
             case containerCloudSimTags.BINDING_CLOUDLET:
                 ProcessBindingBeforeSubmit(ev);
                 break;
+            case containerCloudSimTags.LOAD_BALANCE_SCHEDULE:
+                ProcessLoadBalanceSchedule(ev);
+                break;
             // other unknown tags are processed by this method
             default:
                 processOtherEvent(ev);
@@ -72,8 +75,17 @@ public class ContainerScalabilityBroker extends ContainerDatacenterBroker{
         }
     }
 
+
+    protected void ProcessLoadBalanceSchedule(SimEvent ev){
+        //Log.formatLine(3, CloudSim.clock() + "hello world");
+        List<Container> containerList = (List<Container>) ev.getData();
+        Log.formatLine(3, "A utilization message from datacenter " + ev.getSource());
+
+
+    }
+
 //
-    public void processContainerCreate(ContainerCloudlet cl){
+    public void processContainerCreate(int datacenterId, ContainerCloudlet cl){
         List<Container> l = new ArrayList<Container>(1);
         Container con = new Container(IDs.pollId(Container.class), getId(), const_container.getWorkloadTotalMips(),
                                                 const_container.getNumberOfPes() - cl.getNumberOfPes(), //a little change to initialize
@@ -87,14 +99,16 @@ public class ContainerScalabilityBroker extends ContainerDatacenterBroker{
         Log.formatLine(2, "chris note: Binding Cloudlet " + cl.getCloudletId() + "  to the new container " + con.getId()
                 + " BUT it has not been allocated.");
         //how to place container to VM. cannot invoke the non-static methods. unreasonable.
-        sendNow(datacenterIdsList.get(0), containerCloudSimTags.CONTAINER_SUBMIT, l);
+//        sendNow(getDatacenterIdsList().get(((datacenterId - getDatacenterIdsList().get(0)) + 1) % getDatacenterIdsList().size())
+//                , containerCloudSimTags.CONTAINER_SUBMIT, l);
+        sendNow(datacenterId, containerCloudSimTags.CONTAINER_SUBMIT, l);
     }
 
     /**
      * This function is invoked if one cloudlet has not been bound to one container.
      * And here we adopt the greedy algorithm on the CPU resources required.
      * If all current created containers cannot satisfy, we process a event for creating a new container.
-     * @param SimEvent
+     * @param ev
      */
     public void ProcessBindingBeforeSubmit(SimEvent ev){
         ContainerCloudlet cl = (ContainerCloudlet) ev.getData();
@@ -115,9 +129,9 @@ public class ContainerScalabilityBroker extends ContainerDatacenterBroker{
         }
         if(!binding){
             //Log.formatLine(2, "Chris note: None of containers satisfy the request, create a new container.");
-            processContainerCreate(cl);
+            processContainerCreate(ev.getSource(), cl);
         }
-        send(getDatacenterIdsList().get(0), CloudSim.getMinTimeBetweenEvents(),  CloudSimTags.CLOUDLET_SUBMIT, cl);
+        send(ev.getSource(), CloudSim.getMinTimeBetweenEvents(),  CloudSimTags.CLOUDLET_SUBMIT, cl);
     }
 
     @Override

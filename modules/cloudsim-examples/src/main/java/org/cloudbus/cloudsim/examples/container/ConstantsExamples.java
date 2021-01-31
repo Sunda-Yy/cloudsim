@@ -27,7 +27,7 @@ public class ConstantsExamples {
     /**
      * Startup delay for VMs and the containers are mentioned here.
      */
-    public static final double CONTAINER_STARTTUP_DELAY = 20;//the amount is in seconds
+    public static final double CONTAINER_STARTTUP_DELAY = 0.1;//the amount is in seconds
     public static final double VM_STARTTUP_DELAY = 0.4;//the amoun is in seconds
 
     /**
@@ -47,7 +47,7 @@ public class ConstantsExamples {
 
     public static final int CONTAINER_TYPES = 1;
     //chris add:
-    public static final int NUMBER_CONTAINERS = 4;
+    public static final int NUMBER_CONTAINERS = 1;
     public static final int[] CONTAINER_MIPS = new int[]{10};
     public static final int[] CONTAINER_PES = new int[]{20};
     public static final int[] CONTAINER_RAM = new int[]{102};

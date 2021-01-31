@@ -41,6 +41,8 @@ public class containerCloudSimTags {
     //chris tuning:
     public static final int BINDING_CLOUDLET = ContainerSimBASE + 20;
 
+    public static final int LOAD_BALANCE_SCHEDULE = ContainerSimBASE + 30;
+
 
     private containerCloudSimTags() {
         // TODO Auto-generated constructor stub

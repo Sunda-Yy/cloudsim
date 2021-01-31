@@ -119,7 +119,7 @@ public class PowerContainerDatacenter extends ContainerDatacenter {
         // if some time passed since last processing
         if (currentTime > getLastProcessTime()) {
            // System.out.print(currentTime + " ");
-            Log.formatLine("FUNC: updateCloudProcessing: current time, " + currentTime);
+            Log.formatLine( "FUNC: updateCloudProcessing: current time, " + currentTime);
             double minTime = updateCloudetProcessingWithoutSchedulingFutureEventsForce();
 
             if (!isDisableVmMigrations()) {
@@ -206,13 +206,14 @@ public class PowerContainerDatacenter extends ContainerDatacenter {
         double timeFrameDatacenterEnergy = 0.0;
 
 
-        Log.printLine("\n\n--------------------------------------------------------------\n\n");
+        Log.formatLine(3, CloudSim.clock() + " LOAD BALANCE NOTE: whether to calculate the utilization of each host: "
+                + (boolean)(timeDiff > 0));
         Log.formatLine("Power data center: New resource usage for the time frame starting at %.2f:", currentTime);
 
 
 
         for (PowerContainerHost host : this.<PowerContainerHost>getHostList()) {
-            Log.printLine();
+            Log.formatLine("");
 
             double time = host.updateContainerVmsProcessing(currentTime); // inform VMs to update processing
             if (time < minTime) {
@@ -241,7 +242,7 @@ public class PowerContainerDatacenter extends ContainerDatacenter {
                         timeDiff);
                 timeFrameDatacenterEnergy += timeFrameHostEnergy;
 
-                Log.printLine();
+                Log.formatLine("");
                 Log.formatLine(
                         "%.2f: [Host #%d] utilization at %.2f was %.2f%%, now is %.2f%%",
                         currentTime,
