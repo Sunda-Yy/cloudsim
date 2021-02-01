@@ -47,7 +47,7 @@ public class ConstantsExamples {
 
     public static final int CONTAINER_TYPES = 1;
     //chris add:
-    public static final int NUMBER_CONTAINERS = 1;
+    public static final int NUMBER_CONTAINERS = 10;
     public static final int[] CONTAINER_MIPS = new int[]{10};
     public static final int[] CONTAINER_PES = new int[]{20};
     public static final int[] CONTAINER_RAM = new int[]{102};
@@ -74,8 +74,8 @@ public class ConstantsExamples {
      */
 
 
-    public static final int NUMBER_HOSTS = 3;
-    public static final int NUMBER_VMS = 3;
+    public static final int NUMBER_HOSTS = 2;
+    public static final int NUMBER_VMS = 2;
     public static final int NUMBER_CLOUDLETS = 4;
 
 //-----------------------The Addresses

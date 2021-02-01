@@ -96,8 +96,8 @@ public class ContainerScalabilityBroker extends ContainerDatacenterBroker{
         cl.setContainerId(con.getId());
         l.add(con);
         submitContainerList(l);
-        Log.formatLine(2, "chris note: Binding Cloudlet " + cl.getCloudletId() + "  to the new container " + con.getId()
-                + " BUT it has not been allocated.");
+        Log.formatLine(3, "chris note: Binding Cloudlet " + cl.getCloudletId() + "  to the new container " + con.getId()
+                + " in datacenter " + datacenterId + " (not been allocated yet.");
         //how to place container to VM. cannot invoke the non-static methods. unreasonable.
 //        sendNow(getDatacenterIdsList().get(((datacenterId - getDatacenterIdsList().get(0)) + 1) % getDatacenterIdsList().size())
 //                , containerCloudSimTags.CONTAINER_SUBMIT, l);
@@ -113,14 +113,24 @@ public class ContainerScalabilityBroker extends ContainerDatacenterBroker{
     public void ProcessBindingBeforeSubmit(SimEvent ev){
         ContainerCloudlet cl = (ContainerCloudlet) ev.getData();
         boolean binding = false;
-       // Log.formatLine(2, "chris note: created containers size: " + getContainersCreatedList().size());
+        int dest = ev.getSource();
+        if(cl.getVmId() > 0){
+            for(ContainerVm vm : getVmsCreatedList()){
+                if(vm.getId() == cl.getVmId()){
+                    dest = vm.getHost().getDatacenter().getId();
+                }
+            }
+        }
+        // Log.formatLine(2, "chris note: created containers size: " + getContainersCreatedList().size());
         for(Container container : getContainersCreatedList()){
+            if(cl.getVmId() < 0 || cl.getVmId() !=  container.getVm().getId())
+                continue;
             if (container.getAvailablePesNum() >= cl.getNumberOfPes()) {
                 binding = true;
                 cl.setContainerId(container.getId());
                 Log.formatLine(2, "chris note: Container id: " + container.getId() + " has "
                         +  container.getAvailablePesNum() + " PEs <vs> requests "  + cl.getNumberOfPes()
-                                + " PEs. So bind Cloudlet " + cl.getCloudletId() + "  to container " + container.getId());
+                        + " PEs. So bind Cloudlet " + cl.getCloudletId() + "  to container " + container.getId());
                 cl.setVmId(container.getVm().getId());
                 //subtract the available PEs number.
                 container.setAvailablePesNum(container.getAvailablePesNum() - cl.getNumberOfPes());
@@ -129,9 +139,9 @@ public class ContainerScalabilityBroker extends ContainerDatacenterBroker{
         }
         if(!binding){
             //Log.formatLine(2, "Chris note: None of containers satisfy the request, create a new container.");
-            processContainerCreate(ev.getSource(), cl);
+            processContainerCreate(dest, cl);
         }
-        send(ev.getSource(), CloudSim.getMinTimeBetweenEvents(),  CloudSimTags.CLOUDLET_SUBMIT, cl);
+        send(dest, CloudSim.getMinTimeBetweenEvents(),  CloudSimTags.CLOUDLET_SUBMIT, cl);
     }
 
     @Override
@@ -197,6 +207,26 @@ public class ContainerScalabilityBroker extends ContainerDatacenterBroker{
         }
     }
 
+    @Override
+    protected void createVmsInDatacenter(int datacenterId) {
+        // send as much vms as possible for this datacenter before trying the next one
+        int requestedVms = 0;
+        String datacenterName = CloudSim.getEntityName(datacenterId);
+        for (int i = 0; i < getVmList().size(); i++) {
+            ContainerVm vm = getVmList().get(i);
+            Integer DatacenterId = getDatacenterIdsList().get(i);
+            if (!getVmsToDatacentersMap().containsKey(vm.getId())) {
+                Log.formatLine(3, String.format("%s: %s: Trying to Create VM #%d in datacenter %d",
+                        CloudSim.clock(), getName(), vm.getId(), DatacenterId));
+                sendNow(DatacenterId, CloudSimTags.VM_CREATE_ACK, vm);
+                requestedVms++;
+                getDatacenterRequestedIdsList().add(DatacenterId);
+            }
+        }
+
+        setVmsRequested(requestedVms);
+        setVmsAcks(0);
+    }
 
 
 

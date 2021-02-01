@@ -171,7 +171,7 @@ public class chris_container_test {
             //cloudletList = createContainerCloudletList(brokerId, ConstantsExamples.NUMBER_CLOUDLETS);
             BaseRequestDistribution self_design_distribution = new BaseRequestDistribution(101, 10,
                 3,
-                1000, 100);
+                1000, 100,0);
             cloudletList = self_design_distribution.GetWorkloads();
             for(ContainerCloudlet cl : cloudletList){
                 cl.setUserId(brokerId);

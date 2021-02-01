@@ -34,12 +34,13 @@ public class BaseRequestDistribution {
 //        }
 //    }
 
-    public BaseRequestDistribution(int terminated_time, int interval_length, int Poisson_lambda, double Gaussian_mean, double Gaussian_var) throws IOException {
+    public BaseRequestDistribution(int terminated_time, int interval_length, int Poisson_lambda, double Gaussian_mean,
+                                   double Gaussian_var, int FirstCloudletID) throws IOException {
        // SetIntervalLength(interval_length);
        // this.terminated_time = terminated_time;
         PoissonDistribution RequestNum_distribution = new PoissonDistribution(Poisson_lambda);
         required_workloads = new ArrayList<ContainerCloudlet>();
-        int CloudletID = 0;
+        int CloudletID = FirstCloudletID;
         //Container Cloudlet generation.
 //        String inputFolderName = ContainerCloudSimExample1.class.getClassLoader().getResource("workload/planetlab").getPath();
 //        ArrayList<String> file_path = new ArrayList<String>();

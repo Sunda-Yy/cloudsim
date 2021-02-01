@@ -157,7 +157,7 @@ public class chris_load_balance_test {
             //cloudletList = createContainerCloudletList(brokerId, ConstantsExamples.NUMBER_CLOUDLETS);
             BaseRequestDistribution self_design_distribution = new BaseRequestDistribution(101, 10,
                     3,
-                    20000, 100);
+                    20000, 100, 0);
             cloudletList = self_design_distribution.GetWorkloads();
             for(ContainerCloudlet cl : cloudletList){
                 cl.setUserId(brokerId);
@@ -183,9 +183,43 @@ public class chris_load_balance_test {
             /**
              * 11- Submitting the cloudlet's , container's , and VM's lists to the broker.
              */
-            broker.submitCloudletList(cloudletList);
-            broker.submitContainerList(containerList.subList(0, containerList.size()));
             broker.submitVmList(vmList);
+
+            //binding the containerList to the specific vm.
+            for(Container con : containerList.subList(0, containerList.size() / 2)){
+                con.setVm(vmList.get(0));
+            }
+            for(Container con : containerList.subList(containerList.size() / 2, containerList.size())){
+                con.setVm(vmList.get(1));
+            }
+            broker.submitContainerList(containerList);
+
+            //binding the cloudlet to the vm.
+            broker.submitContainerList(containerList.subList(0, containerList.size()));
+            broker.submitCloudletList(cloudletList);//have to submit the cloudlet before the binding operation.
+            for(ContainerCloudlet cl : cloudletList){
+                broker.bindCloudletToVm(cl.getCloudletId(), vmList.get(0).getId());
+            }
+
+
+            //create workloads in datacenter2.
+            BaseRequestDistribution base_distribution = new BaseRequestDistribution(101, 10,
+                    3,
+                    20000, 100, cloudletList.size());
+            List<ContainerCloudlet> tmp = base_distribution.GetWorkloads();
+            for(ContainerCloudlet cl : tmp){
+                cl.setUserId(brokerId);
+            }
+
+            broker.submitCloudletList(tmp);
+            for(ContainerCloudlet cl : tmp){
+                cloudletList.add(cl);
+                broker.bindCloudletToVm(cl.getCloudletId(), vmList.get(1).getId());
+            }
+
+
+
+
             /**
              * 12- Determining the simulation termination time according to the cloudlet's workload.
              */
